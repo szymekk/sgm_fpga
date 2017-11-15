@@ -1,7 +1,7 @@
 //Copyright 1986-2016 Xilinx, Inc. All Rights Reserved.
 //--------------------------------------------------------------------------------
 //Tool Version: Vivado v.2016.3 (win64) Build 1682563 Mon Oct 10 19:07:27 MDT 2016
-//Date        : Wed Nov 15 23:33:12 2017
+//Date        : Thu Nov 16 00:16:13 2017
 //Host        : komputerek running 64-bit major release  (build 9200)
 //Command     : generate_target hdmi_vga_block_design.bd
 //Design      : hdmi_vga_block_design

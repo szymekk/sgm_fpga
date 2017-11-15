@@ -2,9 +2,9 @@
 <Root MajorVersion="0" MinorVersion="33">
   <CompositeFile CompositeFileTopName="hdmi_vga_block_design" CanBeSetAsTop="false" CanDisplayChildGraph="true">
     <Description>Composite Fileset</Description>
-    <Generation Name="SYNTHESIS" State="STALE" Timestamp="1510785025"/>
-    <Generation Name="IMPLEMENTATION" State="STALE" Timestamp="1510785025"/>
-    <Generation Name="SIMULATION" State="STALE" Timestamp="1510785025"/>
+    <Generation Name="SYNTHESIS" State="GENERATED" Timestamp="1510787774"/>
+    <Generation Name="IMPLEMENTATION" State="GENERATED" Timestamp="1510787774"/>
+    <Generation Name="SIMULATION" State="GENERATED" Timestamp="1510787774"/>
     <FileCollection Name="SOURCES" Type="SOURCES">
       <File Name="ip\hdmi_vga_block_design_dvi2rgb_0_0\hdmi_vga_block_design_dvi2rgb_0_0.xci" Type="IP">
         <Instance HierarchyPath="dvi2rgb_0"/>
@@ -51,6 +51,21 @@
         <UsedIn Val="SYNTHESIS"/>
         <UsedIn Val="IMPLEMENTATION"/>
         <UsedIn Val="OUT_OF_CONTEXT"/>
+      </File>
+      <File Name="hw_handoff\hdmi_vga_block_design.hwh" Type="HwHandoff">
+        <Properties IsEditable="false" IsVisible="true" Timestamp="0" IsTrackable="false" IsStatusTracked="false"/>
+        <Library Name="xil_defaultlib"/>
+        <UsedIn Val="HW_HANDOFF"/>
+      </File>
+      <File Name="hw_handoff\hdmi_vga_block_design_bd.tcl">
+        <Properties IsEditable="false" IsVisible="true" Timestamp="0" IsTrackable="false" IsStatusTracked="false"/>
+        <Library Name="xil_defaultlib"/>
+        <UsedIn Val="HW_HANDOFF"/>
+      </File>
+      <File Name="hdl\hdmi_vga_block_design.hwdef">
+        <Properties IsEditable="false" IsVisible="true" Timestamp="0" IsTrackable="false" IsStatusTracked="false"/>
+        <Library Name="xil_defaultlib"/>
+        <UsedIn Val="HW_HANDOFF"/>
       </File>
     </FileCollection>
   </CompositeFile>
