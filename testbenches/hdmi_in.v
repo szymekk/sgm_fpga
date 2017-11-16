@@ -98,7 +98,10 @@ end
 //-----------------------------------------------
 
 
-localparam header_length = 13;
+`include "../util/digits_b10_fun.v"
+localparam hr_digits = digits_b10(hr);
+localparam vr_digits = digits_b10(vr);
+localparam header_length = 3 + hr_digits + 1 + hr_digits + 1 + digits_b10(255) + 1;
 //localparam filename = "geirangerfjord_64.ppm";
 //localparam filename = "../../../hdmi_vga_zybo_src/geirangerfjord_64.ppm";
 //localparam filename = "../../../hdmi_vga_zybo_src/reka_v3_64x64.ppm";
