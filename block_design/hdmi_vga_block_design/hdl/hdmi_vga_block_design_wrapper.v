@@ -1,7 +1,7 @@
 //Copyright 1986-2016 Xilinx, Inc. All Rights Reserved.
 //--------------------------------------------------------------------------------
 //Tool Version: Vivado v.2016.3 (win64) Build 1682563 Mon Oct 10 19:07:27 MDT 2016
-//Date        : Thu Nov 16 00:16:13 2017
+//Date        : Thu Nov 16 11:19:48 2017
 //Host        : komputerek running 64-bit major release  (build 9200)
 //Command     : generate_target hdmi_vga_block_design_wrapper.bd
 //Design      : hdmi_vga_block_design_wrapper
@@ -17,6 +17,8 @@ module hdmi_vga_block_design_wrapper
     hdmi_in_data_p,
     hdmi_in_ddc_scl_io,
     hdmi_in_ddc_sda_io,
+    led,
+    sw,
     sys_clock,
     vga_pBlue,
     vga_pGreen,
@@ -30,6 +32,8 @@ module hdmi_vga_block_design_wrapper
   input [2:0]hdmi_in_data_p;
   inout hdmi_in_ddc_scl_io;
   inout hdmi_in_ddc_sda_io;
+  output [3:0]led;
+  input [3:0]sw;
   input sys_clock;
   output [4:0]vga_pBlue;
   output [5:0]vga_pGreen;
@@ -50,6 +54,8 @@ module hdmi_vga_block_design_wrapper
   wire hdmi_in_ddc_sda_io;
   wire hdmi_in_ddc_sda_o;
   wire hdmi_in_ddc_sda_t;
+  wire [3:0]led;
+  wire [3:0]sw;
   wire sys_clock;
   wire [4:0]vga_pBlue;
   wire [5:0]vga_pGreen;
@@ -79,6 +85,8 @@ module hdmi_vga_block_design_wrapper
         .hdmi_in_ddc_sda_i(hdmi_in_ddc_sda_i),
         .hdmi_in_ddc_sda_o(hdmi_in_ddc_sda_o),
         .hdmi_in_ddc_sda_t(hdmi_in_ddc_sda_t),
+        .led(led),
+        .sw(sw),
         .sys_clock(sys_clock),
         .vga_pBlue(vga_pBlue),
         .vga_pGreen(vga_pGreen),

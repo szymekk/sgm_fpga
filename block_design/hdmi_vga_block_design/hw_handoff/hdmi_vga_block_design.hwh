@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
-<EDKSYSTEM EDWVERSION="1.2" TIMESTAMP="Thu Nov 16 00:16:14 2017" VIVADOVERSION="2016.3">
+<EDKSYSTEM EDWVERSION="1.2" TIMESTAMP="Thu Nov 16 11:19:48 2017" VIVADOVERSION="2016.3">
 
   <SYSTEMINFO ARCH="zynq" BOARD="digilentinc.com:zybo:part0:1.0" DEVICE="7z010" NAME="hdmi_vga_block_design" PACKAGE="clg400" SPEEDGRADE="-1"/>
 
@@ -8,17 +8,17 @@
     <PORT DIR="I" NAME="hdmi_in_clk_n" SIGIS="undef"/>
     <PORT DIR="I" LEFT="2" NAME="hdmi_in_data_p" RIGHT="0" SIGIS="undef"/>
     <PORT DIR="I" LEFT="2" NAME="hdmi_in_data_n" RIGHT="0" SIGIS="undef"/>
-    <PORT CLKFREQUENCY="125000000" DIR="I" NAME="sys_clock" SIGIS="clk" SIGNAME="External_Ports_sys_clock">
-      <CONNECTIONS>
-        <CONNECTION INSTANCE="clk_wiz_0" PORT="clk_in1"/>
-      </CONNECTIONS>
-    </PORT>
     <PORT DIR="I" NAME="hdmi_in_ddc_scl_i" SIGIS="undef"/>
     <PORT DIR="O" NAME="hdmi_in_ddc_scl_o" SIGIS="undef"/>
     <PORT DIR="O" NAME="hdmi_in_ddc_scl_t" SIGIS="undef"/>
     <PORT DIR="I" NAME="hdmi_in_ddc_sda_i" SIGIS="undef"/>
     <PORT DIR="O" NAME="hdmi_in_ddc_sda_o" SIGIS="undef"/>
     <PORT DIR="O" NAME="hdmi_in_ddc_sda_t" SIGIS="undef"/>
+    <PORT CLKFREQUENCY="125000000" DIR="I" NAME="sys_clock" SIGIS="clk" SIGNAME="External_Ports_sys_clock">
+      <CONNECTIONS>
+        <CONNECTION INSTANCE="clk_wiz_0" PORT="clk_in1"/>
+      </CONNECTIONS>
+    </PORT>
     <PORT DIR="O" LEFT="0" NAME="hdmi_hpd" RIGHT="0" SIGIS="undef" SIGNAME="xlconstant_0_dout">
       <CONNECTIONS>
         <CONNECTION INSTANCE="xlconstant_0" PORT="dout"/>
@@ -47,6 +47,16 @@
     <PORT DIR="O" NAME="vga_pVSync" SIGIS="undef" SIGNAME="rgb2vga_0_vga_pVSync">
       <CONNECTIONS>
         <CONNECTION INSTANCE="rgb2vga_0" PORT="vga_pVSync"/>
+      </CONNECTIONS>
+    </PORT>
+    <PORT DIR="I" LEFT="3" NAME="sw" RIGHT="0" SIGIS="undef" SIGNAME="External_Ports_sw">
+      <CONNECTIONS>
+        <CONNECTION INSTANCE="External_Ports" PORT="led"/>
+      </CONNECTIONS>
+    </PORT>
+    <PORT DIR="O" LEFT="3" NAME="led" RIGHT="0" SIGIS="undef" SIGNAME="External_Ports_sw">
+      <CONNECTIONS>
+        <CONNECTION INSTANCE="External_Ports" PORT="sw"/>
       </CONNECTIONS>
     </PORT>
   </EXTERNALPORTS>
@@ -660,7 +670,7 @@
     </MODULE>
     <MODULE FULLNAME="/dvi2rgb_0" HWVERSION="1.6" INSTANCE="dvi2rgb_0" IPTYPE="PERIPHERAL" IS_ENABLE="1" MODCLASS="PERIPHERAL" MODTYPE="dvi2rgb" VLNV="digilentinc.com:ip:dvi2rgb:1.6">
       <DOCUMENTS>
-        <DOCUMENT SOURCE="e:/Szymon/studia/7semestr/tor_wizyjny/ip_repo/dvi2rgb_v1_6/docs/dvi2rgb.pdf"/>
+        <DOCUMENT SOURCE="e:/Szymon/studia/7semestr/test_vivado_git_tor_wizyjny/tor_zybo_sources/ip_repo/dvi2rgb_v1_6/docs/dvi2rgb.pdf"/>
       </DOCUMENTS>
       <PARAMETERS>
         <PARAMETER NAME="kEmulateDDC" VALUE="true"/>
@@ -686,7 +696,7 @@
             <CONNECTION INSTANCE="clk_wiz_0" PORT="clk_out1"/>
           </CONNECTIONS>
         </PORT>
-        <PORT DIR="I" NAME="aRst" SIGIS="undef" SIGNAME="xlconstant_0_dout">
+        <PORT DIR="I" NAME="aRst" SIGIS="rst" SIGNAME="xlconstant_0_dout">
           <CONNECTIONS>
             <CONNECTION INSTANCE="xlconstant_0" PORT="dout"/>
           </CONNECTIONS>
@@ -723,7 +733,7 @@
         <PORT DIR="I" NAME="DDC_SCL_I" SIGIS="undef"/>
         <PORT DIR="O" NAME="DDC_SCL_O" SIGIS="undef"/>
         <PORT DIR="O" NAME="DDC_SCL_T" SIGIS="undef"/>
-        <PORT DIR="I" NAME="pRst" SIGIS="undef"/>
+        <PORT DIR="I" NAME="pRst" SIGIS="rst"/>
       </PORTS>
       <BUSINTERFACES>
         <BUSINTERFACE BUSNAME="External_Interface_hdmi_in" NAME="TMDS" TYPE="TARGET" VLNV="digilentinc.com:interface:tmds:1.0">
@@ -756,7 +766,7 @@
     </MODULE>
     <MODULE FULLNAME="/rgb2vga_0" HWVERSION="1.0" INSTANCE="rgb2vga_0" IPTYPE="PERIPHERAL" IS_ENABLE="1" MODCLASS="PERIPHERAL" MODTYPE="rgb2vga" VLNV="digilentinc.com:ip:rgb2vga:1.0">
       <DOCUMENTS>
-        <DOCUMENT SOURCE="e:/Szymon/studia/7semestr/tor_wizyjny/ip_repo/rgb2vga_v1_0/docs/rgb2vga_v1_0.pdf"/>
+        <DOCUMENT SOURCE="e:/Szymon/studia/7semestr/test_vivado_git_tor_wizyjny/tor_zybo_sources/ip_repo/rgb2vga_v1_0/docs/rgb2vga_v1_0.pdf"/>
       </DOCUMENTS>
       <PARAMETERS>
         <PARAMETER NAME="VID_IN_DATA_WIDTH" VALUE="24"/>
@@ -840,8 +850,8 @@
       <PORTS>
         <PORT DIR="O" LEFT="0" NAME="dout" RIGHT="0" SIGIS="undef" SIGNAME="xlconstant_0_dout">
           <CONNECTIONS>
-            <CONNECTION INSTANCE="dvi2rgb_0" PORT="aRst"/>
             <CONNECTION INSTANCE="External_Ports" PORT="hdmi_hpd"/>
+            <CONNECTION INSTANCE="dvi2rgb_0" PORT="aRst"/>
           </CONNECTIONS>
         </PORT>
       </PORTS>

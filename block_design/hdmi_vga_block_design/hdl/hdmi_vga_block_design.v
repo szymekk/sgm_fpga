@@ -1,7 +1,7 @@
 //Copyright 1986-2016 Xilinx, Inc. All Rights Reserved.
 //--------------------------------------------------------------------------------
 //Tool Version: Vivado v.2016.3 (win64) Build 1682563 Mon Oct 10 19:07:27 MDT 2016
-//Date        : Thu Nov 16 00:16:13 2017
+//Date        : Thu Nov 16 11:19:48 2017
 //Host        : komputerek running 64-bit major release  (build 9200)
 //Command     : generate_target hdmi_vga_block_design.bd
 //Design      : hdmi_vga_block_design
@@ -22,6 +22,8 @@ module hdmi_vga_block_design
     hdmi_in_ddc_sda_i,
     hdmi_in_ddc_sda_o,
     hdmi_in_ddc_sda_t,
+    led,
+    sw,
     sys_clock,
     vga_pBlue,
     vga_pGreen,
@@ -39,6 +41,8 @@ module hdmi_vga_block_design
   input hdmi_in_ddc_sda_i;
   output hdmi_in_ddc_sda_o;
   output hdmi_in_ddc_sda_t;
+  output [3:0]led;
+  input [3:0]sw;
   input sys_clock;
   output [4:0]vga_pBlue;
   output [5:0]vga_pGreen;
@@ -67,6 +71,7 @@ module hdmi_vga_block_design
   wire rgb2vga_0_vga_pHSync;
   wire [4:0]rgb2vga_0_vga_pRed;
   wire rgb2vga_0_vga_pVSync;
+  wire [3:0]sw_1;
   wire sys_clock_1;
   wire [0:0]xlconstant_0_dout;
 
@@ -81,6 +86,8 @@ module hdmi_vga_block_design
   assign hdmi_in_ddc_scl_t = dvi2rgb_0_DDC_SCL_T;
   assign hdmi_in_ddc_sda_o = dvi2rgb_0_DDC_SDA_O;
   assign hdmi_in_ddc_sda_t = dvi2rgb_0_DDC_SDA_T;
+  assign led[3:0] = sw_1;
+  assign sw_1 = sw[3:0];
   assign sys_clock_1 = sys_clock;
   assign vga_pBlue[4:0] = rgb2vga_0_vga_pBlue;
   assign vga_pGreen[5:0] = rgb2vga_0_vga_pGreen;

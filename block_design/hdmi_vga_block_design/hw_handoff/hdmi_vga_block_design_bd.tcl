@@ -157,6 +157,8 @@ proc create_root_design { parentCell } {
 
   # Create ports
   set hdmi_hpd [ create_bd_port -dir O -from 0 -to 0 hdmi_hpd ]
+  set led [ create_bd_port -dir O -from 3 -to 0 led ]
+  set sw [ create_bd_port -dir I -from 3 -to 0 sw ]
   set sys_clock [ create_bd_port -dir I -type clk sys_clock ]
   set_property -dict [ list \
 CONFIG.FREQ_HZ {125000000} \
@@ -217,6 +219,7 @@ CONFIG.CONST_VAL {0} \
   connect_bd_net -net rgb2vga_0_vga_pHSync [get_bd_ports vga_pHSync] [get_bd_pins rgb2vga_0/vga_pHSync]
   connect_bd_net -net rgb2vga_0_vga_pRed [get_bd_ports vga_pRed] [get_bd_pins rgb2vga_0/vga_pRed]
   connect_bd_net -net rgb2vga_0_vga_pVSync [get_bd_ports vga_pVSync] [get_bd_pins rgb2vga_0/vga_pVSync]
+  connect_bd_net -net sw_1 [get_bd_ports led] [get_bd_ports sw]
   connect_bd_net -net sys_clock_1 [get_bd_ports sys_clock] [get_bd_pins clk_wiz_0/clk_in1]
   connect_bd_net -net xlconstant_0_dout [get_bd_ports hdmi_hpd] [get_bd_pins dvi2rgb_0/aRst] [get_bd_pins xlconstant_0/dout]
 

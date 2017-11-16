@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
-<bd:repository xmlns:bd="http://www.xilinx.com/bd" bd:BoundaryCRC="0xF9784C1E2C93E959" bd:device="xc7z010clg400-1" bd:isValidated="true" bd:synthFlowMode="Hierarchical" bd:tool_version="2016.3" bd:top="hdmi_vga_block_design" bd:version="1.00.a">
+<bd:repository xmlns:bd="http://www.xilinx.com/bd" bd:BoundaryCRC="0xA74F96A4DC858DA7" bd:device="xc7z010clg400-1" bd:isValidated="true" bd:synthFlowMode="Hierarchical" bd:tool_version="2016.3" bd:top="hdmi_vga_block_design" bd:version="1.00.a">
 
   <spirit:component xmlns:spirit="http://www.spiritconsortium.org/XMLSchema/SPIRIT/1685-2009">
     <spirit:vendor>xilinx.com</spirit:vendor>
@@ -140,6 +140,26 @@
             <spirit:direction>out</spirit:direction>
           </spirit:wire>
         </spirit:port>
+        <spirit:port>
+          <spirit:name>sw</spirit:name>
+          <spirit:wire>
+            <spirit:direction>in</spirit:direction>
+            <spirit:vector>
+              <spirit:left>3</spirit:left>
+              <spirit:right>0</spirit:right>
+            </spirit:vector>
+          </spirit:wire>
+        </spirit:port>
+        <spirit:port>
+          <spirit:name>led</spirit:name>
+          <spirit:wire>
+            <spirit:direction>out</spirit:direction>
+            <spirit:vector>
+              <spirit:left>3</spirit:left>
+              <spirit:right>0</spirit:right>
+            </spirit:vector>
+          </spirit:wire>
+        </spirit:port>
       </spirit:ports>
     </spirit:model>
   </spirit:component>
@@ -206,8 +226,8 @@
       <spirit:adHocConnection>
         <spirit:name>xlconstant_0_dout</spirit:name>
         <spirit:internalPortReference spirit:componentRef="xlconstant_0" spirit:portRef="dout"/>
-        <spirit:internalPortReference spirit:componentRef="dvi2rgb_0" spirit:portRef="aRst"/>
         <spirit:externalPortReference spirit:portRef="hdmi_hpd"/>
+        <spirit:internalPortReference spirit:componentRef="dvi2rgb_0" spirit:portRef="aRst"/>
       </spirit:adHocConnection>
       <spirit:adHocConnection>
         <spirit:name>clk_wiz_0_clk_out1</spirit:name>
@@ -243,6 +263,11 @@
         <spirit:name>dvi2rgb_0_PixelClk</spirit:name>
         <spirit:internalPortReference spirit:componentRef="dvi2rgb_0" spirit:portRef="PixelClk"/>
         <spirit:internalPortReference spirit:componentRef="rgb2vga_0" spirit:portRef="PixelClk"/>
+      </spirit:adHocConnection>
+      <spirit:adHocConnection>
+        <spirit:name>sw_1</spirit:name>
+        <spirit:externalPortReference spirit:portRef="sw"/>
+        <spirit:externalPortReference spirit:portRef="led"/>
       </spirit:adHocConnection>
     </spirit:adHocConnections>
     <spirit:hierConnections>
