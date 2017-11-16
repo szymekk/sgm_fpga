@@ -1,5 +1,5 @@
-`ifndef _write_int_b10_to_file_task_
-`define _write_int_b10_to_file_task_
+`ifndef _write_int_b10_to_file_task_v_
+`define _write_int_b10_to_file_task_v_
 
 `include "digits_b10_fun.v"
 
@@ -18,4 +18,4 @@ begin
 end
 endtask
 
-`endif // _write_int_b10_to_file_task_
+`endif // _write_int_b10_to_file_task_v_
