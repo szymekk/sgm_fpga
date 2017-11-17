@@ -57,11 +57,12 @@ wire [ARR_WIDTH-1:0] array = {matching_cost[7], matching_cost[6], matching_cost[
 localparam INDEX_BITS = clog2(COST_BITS);
 wire [INDEX_BITS-1:0]index;//3 bit
 wire [COST_BITS-1:0]min_val;//8 bit
-argmin_8 #(
-    .WIDTH(COST_BITS)//
+argmin #(
+    .WIDTH(COST_BITS),//
+    .INPUTS(8)    
 ) disparity_selector (
     //inputs
-    .data(array),//packed array
+    .input_words(array), // packed array of words to be compared
     //outputs
     .min_value(min_val),
     .min_index(index)

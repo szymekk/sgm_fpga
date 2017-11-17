@@ -1,36 +1,4 @@
-/*
-`ifndef ARRAY_PACK_UNPACK_V
-`ifdef PACK_ARRAY
-$finish; // macro PACK_ARRAY already exists. refusing to redefine.
-`endif
-`ifdef UNPACK_ARRAY
-$finish; // macro UNPACK_ARRAY already exists. refusing to redefine.
-`endif
-
-`define ARRAY_PACK_UNPACK_V 1
-`define PACK_ARRAY(PK_WIDTH,PK_LEN,PK_SRC,PK_DEST) genvar pk_idx; generate for (pk_idx=0; pk_idx<(PK_LEN); pk_idx=pk_idx+1) begin; assign PK_DEST[((PK_WIDTH)*pk_idx+((PK_WIDTH)-1)):((PK_WIDTH)*pk_idx)] = PK_SRC[pk_idx][((PK_WIDTH)-1):0]; end; endgenerate
-`define UNPACK_ARRAY(PK_WIDTH,PK_LEN,PK_DEST,PK_SRC) genvar unpk_idx; generate for (unpk_idx=0; unpk_idx<(PK_LEN); unpk_idx=unpk_idx+1) begin; assign PK_DEST[unpk_idx][((PK_WIDTH)-1):0] = PK_SRC[((PK_WIDTH)*unpk_idx+(PK_WIDTH-1)):((PK_WIDTH)*unpk_idx)]; end; endgenerate
-
-`endif
-//////////////////////////////////////
-module example (
-    input  [63:0] pack_4_16_in,
-    output [31:0] pack_16_2_out
-    );
-
-wire [3:0] in [0:15];
-`UNPACK_ARRAY(4,16,in,pack_4_16_in)
-
-wire [15:0] out [0:1];
-`PACK_ARRAY(16,2,in,pack_16_2_out)
-
-
-// useful code goes here
-
-endmodule // example
-*/
-
-module tb_argmin_8(
+module tb_argmin(
 );
 
 reg clk = 1'b0;
@@ -43,11 +11,14 @@ begin
     end
 end
 
+`include "../util/clog2_fun.v"
 localparam EL_WIDTH = 7;//max 127
-reg [EL_WIDTH-1:0] data_memory[0:7];
+localparam WORDS = 8; // number of compared words
+localparam IDX_WIDTH = clog2(WORDS);
+reg [EL_WIDTH-1:0] data_memory[0:WORDS-1];
 
-reg [2:0]correct_index;//3 bit
-reg [7:0]correct_min_val;//8 bit
+reg [IDX_WIDTH-1:0]correct_index;//3 bit
+reg [EL_WIDTH-1:0]correct_min_val;//8 bit
 initial begin
 
 #1
@@ -124,7 +95,7 @@ wire [EL_WIDTH-1:0]min_val;//7 bit
 
 argmin_8 #(
     .WIDTH(EL_WIDTH)
-) DUT (
+) reference (
     //inputs
     .input_words(array),//packed array
     //outputs
@@ -137,7 +108,7 @@ wire [EL_WIDTH-1:0]min_val_generic;//7 bit
 argmin #(
     .WIDTH(EL_WIDTH),
     .INPUTS(8)
-) DUT_2 (
+) DUT (
     //inputs
     .input_words(array),//packed array
     //outputs
@@ -147,23 +118,28 @@ argmin #(
 
 
 always @(posedge clk) begin
-    if (correct_index !== index)
+    if (correct_index !== index_generic)
     begin
-        if (data_memory[correct_index] !== data_memory[index])
+        if (data_memory[correct_index] !== data_memory[index_generic])
         begin
             $display("[%d] ASSERTION index FAILED in %m", $time);
+            $display("EXPECTED: data_memory[correct_index] === data_memory[index_generic]");
+            $display("ACTUAL: data_memory[%d] !== data_memory[%d]", correct_index, index_generic);
+            $display("ACTUAL: %d !== %d", data_memory[correct_index], data_memory[index_generic]);
             $finish;
 //            $stop;
         end else
         begin
             $display("index [%d] selected reference is [%d] both point to the same value [%d]",
-                     index, correct_index, data_memory[index]);
+                     index_generic, correct_index, data_memory[index_generic]);
         end
     end
     
-    if (correct_min_val !== min_val)
+    if (correct_min_val !== min_val_generic)
     begin
         $display("ASSERTION val FAILED in %m");
+        $display("EXPECTED: correct_min_val === min_val_generic");
+        $display("ACTUAL: %d !== %d", correct_min_val, min_val_generic);
         $finish;
 //        $stop;
     end

@@ -45,7 +45,7 @@ module argmin_8
 )
 (
     //inputs
-    input [INPUT_ARR_WIDTH-1:0] data,//packed array
+    input [INPUT_ARR_WIDTH-1:0] input_words,//packed array
     //outputs
     output [WIDTH-1:0] min_value,
     output [INDEX_BITS:0] min_index
@@ -56,19 +56,12 @@ module argmin_8
 module argmin_8
 (
     //inputs
-    data,//packed array
+    input_words,//packed array
     //outputs
     min_value,
     min_index
 );
-function integer clog2;
-    input integer value;
-    begin 
-        value = value - 1;
-        for (clog2 = 0; value > 0; clog2 = clog2 + 1)
-            value = value >> 1;
-    end 
-endfunction
+`include "../util/clog2_fun.v"
 
 parameter WIDTH = 2;
 localparam INPUTS = 8;
@@ -78,7 +71,7 @@ localparam INDEX_BITS = clog2(INPUTS);
 //localparam INDEX_BITS = 3;
 
 //inputs
-input [INPUT_ARR_WIDTH-1:0] data;//packed array
+input [INPUT_ARR_WIDTH-1:0] input_words;//packed array
 //outputs
 output [WIDTH-1:0] min_value;
 output [INDEX_BITS-1:0] min_index;
@@ -102,7 +95,7 @@ wire [WIDTH-1:0] array [0:INPUTS-1];
 genvar unpk_idx;
 generate
 for (unpk_idx=0; unpk_idx<(INPUTS); unpk_idx=unpk_idx+1) begin : unpack_to_array
-    assign array[unpk_idx][((WIDTH)-1):0] = data[((WIDTH)*unpk_idx+(WIDTH-1)):((WIDTH)*unpk_idx)];
+    assign array[unpk_idx][((WIDTH)-1):0] = input_words[((WIDTH)*unpk_idx+(WIDTH-1)):((WIDTH)*unpk_idx)];
 end
 endgenerate
 
@@ -122,7 +115,7 @@ for (i=0; i<INPUTS; i=i+2) begin :gen_comps_lvl1
         .x1_val(array[i]),
         .x1_key(INPUT_INDEX),
         .x2_val(array[i+1]),
-        .x2_key(INPUT_INDEX + 1),
+        .x2_key(INPUT_INDEX + 1'd1),
         .min_val(value_l1[i/2]),
         .min_key(index_l1[i/2])
     );
