@@ -53,6 +53,22 @@ localparam ARR_WIDTH = COST_BITS*DISPARITY_RANGE;
 wire [ARR_WIDTH-1:0] array = {matching_cost[7], matching_cost[6], matching_cost[5], matching_cost[4],
                               matching_cost[3], matching_cost[2], matching_cost[1], matching_cost[0]};
 
+path_cost_calculator #(
+    .PATH_DELAY(1)
+) horizontal (
+    //inputs
+    .in_clk(clk),
+    .in_P1(),
+    .in_P2(),
+    .in_C_arr(), // width = COST_BITS*(MAX_DISP + 1)
+    //outputs
+    .out_L_arr() // width = ACC_COST_BITS*(MAX_DISP + 1)
+);
+
+// path_cost_calculator #(.PATH_DELAY(1665)) diagonal_left_to_right ()
+// path_cost_calculator #(.PATH_DELAY(1664)) top_to_bottom ()
+// path_cost_calculator #(.PATH_DELAY(1663)) diagonal_right_to_left ()
+
 `include "../util/clog2_fun.v"
 localparam INDEX_BITS = clog2(COST_BITS);
 wire [INDEX_BITS-1:0]index;//3 bit

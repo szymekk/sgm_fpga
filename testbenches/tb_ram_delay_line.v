@@ -17,8 +17,7 @@ localparam DELAY = 100;
 
 reg [DATA_WIDTH-1:0] data_in = 0;
 always @(posedge clk) begin
-
-data_in <= data_in + 1;
+    data_in <= data_in + 1;
 end
 
 initial begin
@@ -26,7 +25,7 @@ initial begin
 $finish;
 end
 
-wire [DATA_WIDTH-1:0] data_out;
+wire [DATA_WIDTH-1:0] dut_out;
 wire [DATA_WIDTH-1:0] ff_out;
 
 ram_delay_line
@@ -39,7 +38,7 @@ ram_delay_line
     .rst(1'b0),
     .data_in(data_in),
     //outputs
-    .data_out(data_out)
+    .data_out(dut_out)
 );
 
 delay_line
@@ -53,5 +52,16 @@ delay_line
     //outputs
     .odata(ff_out)
 );
+
+always @(posedge clk) begin
+    if (ff_out !== dut_out)
+    begin
+        $display("[%d] ASSERTION FAILED in %m", $time);
+        $display("EXPECTED: ff_out === dut_out");
+        $display("ACTUAL: %d !== %d", ff_out, dut_out);
+        $finish;
+//      $stop;
+    end
+end
 
 endmodule

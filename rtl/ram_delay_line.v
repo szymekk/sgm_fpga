@@ -46,7 +46,7 @@ ram_inference #(
     .RAM_DEPTH(RAM_DEPTH)
     ) memory (
     .clk(clk),
-    .en(1'b1),
+    .en(ce),
     .we(1'b1),
     .addr(position),
     .di(w_d_in),
