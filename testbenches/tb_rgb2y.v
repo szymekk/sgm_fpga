@@ -27,6 +27,8 @@ wire [7:0] tx_red;
 wire [7:0] tx_green;
 wire [7:0] tx_blue;
 
+wire [7:0] tx_grayscale;
+
 
 
 // --------------------------------------
@@ -67,15 +69,23 @@ rgb2y DUT (
 // --------------------------------------
 assign {tx_de,tx_hsync,tx_vsync} = {de_y,hs_y,vs_y};
 assign {tx_red,tx_green,tx_blue} = {3{px_y}};
+assign tx_grayscale = px_y;
 
 // --------------------------------------
 // HDMI output
 // --------------------------------------
 hdmi_out file_output (
-    .hdmi_clk(rx_pclk), 
-    .hdmi_vs(tx_vsync), 
-    .hdmi_de(tx_de), 
+    .hdmi_clk(rx_pclk),
+    .hdmi_vs(tx_vsync),
+    .hdmi_de(tx_de),
     .hdmi_data({8'b0,tx_red,tx_green,tx_blue})
+    );
+
+grayscale_out pgm_file_output (
+    .hdmi_clk(rx_pclk),
+    .hdmi_vs(tx_vsync),
+    .hdmi_de(tx_de),
+    .grayscale_data(tx_grayscale)
     );
 
 endmodule // tb_rgb2y

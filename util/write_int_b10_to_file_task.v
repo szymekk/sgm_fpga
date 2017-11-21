@@ -5,6 +5,7 @@
 
 task write_int_b10_to_file;
 input integer number, out_file;
+integer i, j, temp;
 begin
     for (i=digits_b10(number); i > 0; i=i-1)
     begin
