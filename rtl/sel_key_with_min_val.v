@@ -25,7 +25,7 @@ module sel_key_with_min_val #(
     //--------------------end_assert----------------
 
     always @(*) begin
-        if (x1_val < x2_val) begin
+        if (x1_val <= x2_val) begin
             min_val = x1_val;
             min_key = x1_key;
         end
