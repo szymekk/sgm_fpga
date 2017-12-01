@@ -58,14 +58,28 @@ set run_remote_bd_flow 1
 if { $run_remote_bd_flow == 1 } {
   # Set the reference directory for source file relative paths (by default 
   # the value is script directory path)
-  set origin_dir ./block_design
+  #set origin_dir ./block_design
+  common::send_msg_id "MOJE_BD-1" "INFO" "<origin_dir> is <$origin_dir>."
+  set info_script [info script]
+  common::send_msg_id "MOJE_BD-2" "INFO" "<info_script> is <$info_script>."
+  set dirname_info_script [file dirname [info script]]
+  common::send_msg_id "MOJE_BD-3" "INFO" "<dirname_info_script> is <$dirname_info_script>."
+  set rel_origin_dir_bd ./block_design
+  common::send_msg_id "MOJE_BD-4" "INFO" "<rel_origin_dir_bd> is <$rel_origin_dir_bd>."
+  set abs_origin_dir_bd [file normalize ${rel_origin_dir_bd}]
+  common::send_msg_id "MOJE_BD-5" "INFO" "<abs_origin_dir_bd> is <$abs_origin_dir_bd>."
+  #return 500
+
+  #set origin_dir ./block_design
+  set bd_folder $origin_dir/block_design
 
   # Use origin directory path location variable, if specified in the tcl shell
   if { [info exists ::origin_dir_loc] } {
      set origin_dir $::origin_dir_loc
   }
 
-  set str_bd_folder [file normalize ${origin_dir}]
+  #set str_bd_folder [file normalize ${origin_dir}]
+  set str_bd_folder [file normalize ${bd_folder}]
   set str_bd_filepath ${str_bd_folder}/${design_name}/${design_name}.bd
 
   # Check if remote design exists on disk
@@ -157,6 +171,8 @@ proc create_root_design { parentCell } {
 
   # Create ports
   set hdmi_hpd [ create_bd_port -dir O -from 0 -to 0 hdmi_hpd ]
+  set led [ create_bd_port -dir O -from 3 -to 0 led ]
+  set sw [ create_bd_port -dir I -from 3 -to 0 sw ]
   set sys_clock [ create_bd_port -dir I -type clk sys_clock ]
   set_property -dict [ list \
 CONFIG.FREQ_HZ {125000000} \
@@ -190,10 +206,18 @@ CONFIG.MMCM_COMPENSATION.VALUE_SRC {DEFAULT} \
  ] $clk_wiz_0
 
   # Create instance: dvi2rgb_0, and set properties
-  set dvi2rgb_0 [ create_bd_cell -type ip -vlnv digilentinc.com:ip:dvi2rgb:1.6 dvi2rgb_0 ]
+#  set dvi2rgb_0 [ create_bd_cell -type ip -vlnv digilentinc.com:ip:dvi2rgb:1.6 dvi2rgb_0 ]
+#  set_property -dict [ list \
+#CONFIG.kEdidFileName {720p_edid.txt} \
+# ] $dvi2rgb_0
+#ew.
+  # Create instance: dvi2rgb_0, and set properties
+  set dvi2rgb_0 [ create_bd_cell -type ip -vlnv digilentinc.com:ip:dvi2rgb:1.9 dvi2rgb_0 ]
   set_property -dict [ list \
-CONFIG.kEdidFileName {720p_edid.txt} \
+CONFIG.kDebug {false} \
+CONFIG.kEdidFileName {dgl_720p_cea.data} \
  ] $dvi2rgb_0
+#CONFIG.kEdidFileName {dgl_1280_1024_cea.data}
 
   # Create instance: rgb2vga_0, and set properties
   set rgb2vga_0 [ create_bd_cell -type ip -vlnv digilentinc.com:ip:rgb2vga:1.0 rgb2vga_0 ]
@@ -217,6 +241,7 @@ CONFIG.CONST_VAL {0} \
   connect_bd_net -net rgb2vga_0_vga_pHSync [get_bd_ports vga_pHSync] [get_bd_pins rgb2vga_0/vga_pHSync]
   connect_bd_net -net rgb2vga_0_vga_pRed [get_bd_ports vga_pRed] [get_bd_pins rgb2vga_0/vga_pRed]
   connect_bd_net -net rgb2vga_0_vga_pVSync [get_bd_ports vga_pVSync] [get_bd_pins rgb2vga_0/vga_pVSync]
+  connect_bd_net -net sw_1 [get_bd_ports led] [get_bd_ports sw]
   connect_bd_net -net sys_clock_1 [get_bd_ports sys_clock] [get_bd_pins clk_wiz_0/clk_in1]
   connect_bd_net -net xlconstant_0_dout [get_bd_ports hdmi_hpd] [get_bd_pins dvi2rgb_0/aRst] [get_bd_pins xlconstant_0/dout]
 
