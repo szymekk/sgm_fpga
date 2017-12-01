@@ -2,7 +2,7 @@ module simple_sgm
 # (
     // 83 dla 64x64
     // 1664 dla 1280x720
-    localparam DISPARITY_RANGE = 8
+    localparam DISPARITY_RANGE = 64
 )
 (
     //inputs
@@ -50,19 +50,58 @@ end
 endgenerate
 
 localparam ARR_WIDTH = COST_BITS*DISPARITY_RANGE;
+/*
 wire [ARR_WIDTH-1:0] array = {matching_cost[7], matching_cost[6], matching_cost[5], matching_cost[4],
-                              matching_cost[3], matching_cost[2], matching_cost[1], matching_cost[0]};
+                              matching_cost[3], matching_cost[2], matching_cost[1], matching_cost[0]};//todo
+*/
+wire [ARR_WIDTH-1:0] matching_costs_array;//todo
+genvar d;
+generate
+for (d = 0; d <= MAX_DISP; d = d + 1) begin : pack_path_costs_to_array
+    assign matching_costs_array[COST_BITS*d + (COST_BITS-1) : COST_BITS*d] = matching_cost[d];
+end
+endgenerate
+
+wire [9:0] row;//todo size clog2
+wire [10:0] col;//todo size clog2
+img_coordinates_counter #(
+    .ROW_WIDTH(10),
+    .COL_WIDTH(11)
+) coordinates_counter (
+    //inputs
+    .clk(clk),
+    .de_in(de_in),
+    .h_sync_in(h_sync_in),
+    .v_sync_in(v_sync_in),
+    //outputs
+    .row_out(row),
+    .col_out(col)
+);
+
+localparam HALF_IMG_WIDTH = 400;
+//wire half_img_de = de_in && (col >= HALF_IMG_WIDTH);
+
+wire horizontal_beginning = (0 + HALF_IMG_WIDTH == col);
+
+localparam ACC_COST_BITS = COST_BITS + 1;//todo
+localparam PATH_COST_ARR_WIDTH = ACC_COST_BITS*DISPARITY_RANGE;
+wire [PATH_COST_ARR_WIDTH-1:0] L_array;
 
 path_cost_calculator #(
+    .DISPARITY_LEVELS(DISPARITY_RANGE),
+    .COST_BITS(COST_BITS),
+    .ACC_COST_BITS(ACC_COST_BITS),
     .PATH_DELAY(1)
 ) horizontal (
     //inputs
+    //.in_de(half_img_de), // todo remove?
+    .in_path_beginning(horizontal_beginning),
     .in_clk(clk),
-    .in_P1(),
-    .in_P2(),
-    .in_C_arr(), // width = COST_BITS*(MAX_DISP + 1)
+    .in_P1(8'd15), // todo variable
+    .in_P2(8'd100), // todo P2 calculation
+    .in_C_arr(matching_costs_array), // width = COST_BITS*(MAX_DISP + 1)
     //outputs
-    .out_L_arr() // width = ACC_COST_BITS*(MAX_DISP + 1)
+    .out_L_arr(L_array) // width = ACC_COST_BITS*(MAX_DISP + 1)
 );
 
 // path_cost_calculator #(.PATH_DELAY(1665)) diagonal_left_to_right ()
@@ -70,23 +109,29 @@ path_cost_calculator #(
 // path_cost_calculator #(.PATH_DELAY(1663)) diagonal_right_to_left ()
 
 `include "../util/clog2_fun.v"
-localparam INDEX_BITS = clog2(COST_BITS);
-wire [INDEX_BITS-1:0]index;//3 bit
-wire [COST_BITS-1:0]min_val;//8 bit
+localparam INDEX_BITS = clog2(DISPARITY_RANGE);
+wire [INDEX_BITS-1:0]index;//5 bit for 32 disparities, 6 bit for 64
+wire [ACC_COST_BITS-1:0]min_val;//8 bit
 argmin #(
-    .WIDTH(COST_BITS),//
-    .INPUTS(8)    
+    .WIDTH(ACC_COST_BITS),
+    .INPUTS(DISPARITY_RANGE)
 ) disparity_selector (
     //inputs
-    .input_words(array), // packed array of words to be compared
+    .input_words(L_array), // packed array of words to be compared
     //outputs
     .min_value(min_val),
     .min_index(index)
 );
 
-
-assign {clk_out,de_out,h_sync_out,v_sync_out} = {clk,de_in,h_sync_in,v_sync_in};
-assign pixel_disparity = right_arr[5];//TODO CHANGE
+reg reg_de = 0;
+reg reg_h_sync = 0;
+reg reg_v_sync = 0;
+always @(posedge clk) begin : control_signals_delay
+    {reg_de, reg_h_sync, reg_v_sync} <= {de_in, h_sync_in, v_sync_in};
+end
+assign {clk_out, de_out, h_sync_out, v_sync_out} = {clk, reg_de, reg_h_sync, reg_v_sync};
+assign pixel_disparity = index;
+//assign pixel_disparity = right_arr[5];//TODO CHANGE
 //assign pixel_disparity = right_arr[0];//TODO CHANGE
 
 

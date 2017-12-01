@@ -3,7 +3,7 @@
 module tb_simple_sgm(
     );
 
-localparam HALF_IM_WIDTH = 200;
+localparam HALF_IMG_WIDTH = 400;
 
 wire rx_pclk;
 
@@ -23,6 +23,8 @@ wire tx_vsync;
 wire [7:0] tx_red;
 wire [7:0] tx_green;
 wire [7:0] tx_blue;
+
+wire [7:0] tx_grayscale;
 
 
 
@@ -70,7 +72,7 @@ half_img # (
     .H_SIZE(83),
     // 83 dla 64x64
     // 1664 dla 1280x720
-    .HALF_IMG_W(HALF_IM_WIDTH),
+    .HALF_IMG_W(HALF_IMG_WIDTH),
     .PX_WIDTH(8)
 ) splitter_halfs_one_channel (
     //inputs
@@ -115,17 +117,31 @@ simple_sgm
 // Output assigment
 // --------------------------------------
 
+localparam PIXEL_INTENSITY_LEVELS = 256;
+localparam DISPARITY_RANGE = 64;
+localparam SCALE_FACTOR = PIXEL_INTENSITY_LEVELS/DISPARITY_RANGE;
+
+wire [7:0] scaled_out_px_disparity = SCALE_FACTOR*dut_px_disparity;
+
 assign {tx_pclk,tx_de,tx_hsync,tx_vsync} = {dut_pclk,dut_de,dut_hs,dut_vs};
-assign {tx_red,tx_green,tx_blue} = {3{dut_px_disparity}};
+assign {tx_red,tx_green,tx_blue} = {3{scaled_out_px_disparity}};
+assign tx_grayscale = scaled_out_px_disparity;
 
 // --------------------------------------
 // HDMI output
 // --------------------------------------
 hdmi_out file_output (
-    .hdmi_clk(tx_pclk), 
-    .hdmi_vs(tx_vsync), 
-    .hdmi_de(tx_de), 
+    .hdmi_clk(tx_pclk),
+    .hdmi_vs(tx_vsync),
+    .hdmi_de(tx_de),
     .hdmi_data({8'b0,tx_red,tx_green,tx_blue})
+    );
+
+grayscale_out pgm_file_output (
+    .hdmi_clk(tx_pclk),
+    .hdmi_vs(tx_vsync),
+    .hdmi_de(tx_de),
+    .grayscale_data(tx_grayscale)
     );
 
 

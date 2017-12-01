@@ -1,6 +1,5 @@
 module half_img
 # (
-    parameter H_SIZE = 83,
     parameter HALF_IMG_W = 32,
     // 83 dla 64x64
     // 1664 dla 1280x720

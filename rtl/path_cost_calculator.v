@@ -1,15 +1,20 @@
 module path_cost_calculator
 # (
-    localparam DISPARITY_LEVELS = 64,
-    localparam COST_BITS = 6,
-    localparam ACC_COST_BITS = 8,
+//    localparam DISPARITY_LEVELS = 64,
+//    localparam COST_BITS = 6,
+//    localparam ACC_COST_BITS = 8,
+    parameter DISPARITY_LEVELS = 64,
+    parameter COST_BITS = 6,
+    parameter ACC_COST_BITS = 8,
     parameter PATH_DELAY = 1600
 )
 (
     //inputs
+    //input in_de, //todo
+    input in_path_beginning,
     input in_clk,
-    input in_P1,//todo size
-    input in_P2,//todo size
+    input [7:0] in_P1,//todo size
+    input [7:0] in_P2,//todo size
     input [COST_BITS*DISPARITY_LEVELS-1:0] in_C_arr, // width = COST_BITS*(MAX_DISP + 1)
     //outputs
     output [ACC_COST_BITS*DISPARITY_LEVELS-1:0] out_L_arr // width = ACC_COST_BITS*(MAX_DISP + 1)
@@ -41,13 +46,16 @@ endgenerate
 
 reg [ACC_COST_BITS-1:0] path_costs [0:MAX_DISP]; // array of path costs for each candidate disparity
 wire [ACC_COST_BITS-1:0] min_prev_path_cost;
-wire smoothness_term [0:MAX_DISP]; // todo size (bit width)
+wire [ACC_COST_BITS-1:0] smoothness_term [0:MAX_DISP]; // todo size (bit width)
 
 always @(posedge in_clk)
 begin : path_cost_calculation
     integer d;
     for (d = 0; d <= MAX_DISP; d = d + 1) begin : accumulate_costs
-        path_costs[d] <= local_costs[d] + smoothness_term[d] - min_prev_path_cost;
+        if (in_path_beginning)
+            path_costs[d] <= local_costs[d];
+        else
+            path_costs[d] <= local_costs[d] + smoothness_term[d] - min_prev_path_cost;
     end
 end
 
@@ -60,7 +68,7 @@ end
 endgenerate
 //---------------------------------------------------------------------
 //---------------------------------------------------------------------
-/*
+
 delay_line #(
     .N(ACC_COST_BITS*DISPARITY_LEVELS),
     .DELAY(PATH_DELAY - 1) // register delay by one already
@@ -72,7 +80,7 @@ delay_line #(
     //outputs
     .odata(packed_prev_path_costs)
 );
-*/
+
 //---------------------------------------------------------------------
 /*
 reg [ACC_COST_BITS*DISPARITY_LEVELS-1:0] memory [1:PATH_DELAY];
@@ -88,6 +96,7 @@ end
 assign packed_prev_path_costs = memory[PATH_DELAY];
 */
 //---------------------------------------------------------------------
+/*
 ram_delay_line
 #(
     //.DATA_WIDTH(ACC_COST_BITS*DISPARITY_LEVELS),
@@ -101,6 +110,7 @@ ram_delay_line
     //outputs
     .data_out(packed_prev_path_costs)
 );
+*/
 //---------------------------------------------------------------------
 //---------------------------------------------------------------------
 
@@ -135,7 +145,7 @@ endgenerate
 
 // todo - use module without min_index
 `include "../util/clog2_fun.v"
-localparam DUMMY_INDEX_BITS = clog2(ACC_COST_BITS);
+localparam DUMMY_INDEX_BITS = clog2(DISPARITY_LEVELS);
 wire [DUMMY_INDEX_BITS-1:0] unused_wire_index;
 argmin #(
     .WIDTH(ACC_COST_BITS),//
