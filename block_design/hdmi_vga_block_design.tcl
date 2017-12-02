@@ -71,7 +71,8 @@ if { $run_remote_bd_flow == 1 } {
   #return 500
 
   #set origin_dir ./block_design
-  set bd_folder $origin_dir/block_design
+  #set bd_folder $origin_dir/block_design
+  set bd_folder $script_folder
 
   # Use origin directory path location variable, if specified in the tcl shell
   if { [info exists ::origin_dir_loc] } {
