@@ -72,7 +72,7 @@ if { [info exists ::origin_dir_loc] } {
 }
 
 variable script_file
-set script_file "build_project.tcl"
+set script_file "build_project_vp.tcl"
 
 # Help information for this script
 proc help {} {
@@ -115,11 +115,11 @@ if { $::argc > 0 } {
 }
 
 # Set the directory path for the original project from where this script was exported
-set orig_proj_dir "[file normalize "$origin_dir/working_dir_tor_wizyjny"]"
+set orig_proj_dir "[file normalize "$origin_dir/working_dir_sgm"]"
 
 # Create project
-#create_project working_dir_tor_wizyjny ./working_dir_tor_wizyjny -part xc7z010clg400-1
-create_project working_dir_tor_wizyjny $origin_dir/working_dir_tor_wizyjny -part xc7z010clg400-1
+#create_project working_dir_sgm ./working_dir_sgm -part xc7z010clg400-1
+create_project working_dir_sgm $origin_dir/working_dir_sgm -part xc7z010clg400-1
 
 # Set the directory path for the new project
 set proj_dir [get_property directory [current_project]]
@@ -128,11 +128,11 @@ set proj_dir [get_property directory [current_project]]
 # None
 
 # Set project properties
-set obj [get_projects working_dir_tor_wizyjny]
+set obj [get_projects working_dir_sgm]
 set_property "board_part" "digilentinc.com:zybo:part0:1.0" $obj
 set_property "default_lib" "xil_defaultlib" $obj
 set_property "ip_cache_permissions" "read write" $obj
-set_property "ip_output_repo" "E:/Szymon/studia/7semestr/tor_wizyjny/working_dir_tor_wizyjny/working_dir_tor_wizyjny.cache/ip" $obj
+set_property "ip_output_repo" "E:/Szymon/studia/7semestr/tcl_generation_test_vp/working_dir_sgm/working_dir_sgm.cache/ip" $obj
 set_property "sim.ip.auto_export_scripts" "1" $obj
 set_property "simulator_language" "Mixed" $obj
 set_property "xpm_libraries" "XPM_CDC" $obj
@@ -146,53 +146,53 @@ if {[string equal [get_filesets -quiet sources_1] ""]} {
 
 # Set IP repository paths
 set obj [get_filesets sources_1]
-#set_property "ip_repo_paths" "[file normalize "$origin_dir/ip_repo"]" $obj
-### sprawdzic czy to dziala
-set_property "ip_repo_paths" "[file normalize "$origin_dir/vp_ip_dir"] [file normalize "$origin_dir/ip_repo"]" $obj
-#set_property  ip_repo_paths  {e:/Szymon/studia/7semestr/tcl_generation_test_vp/vp_ip_dir e:/Szymon/studia/7semestr/tcl_generation_test_vp/ip_repo} [current_project]
+set_property "ip_repo_paths" "[file normalize "$origin_dir/ip_repo"]" $obj
 
 # Rebuild user ip_repo's index before adding any source files
 update_ip_catalog -rebuild
 
 ############################################################
-# Create block design
-source $origin_dir/block_design/hdmi_vga_block_design.tcl
-common::send_msg_id "MOJE_PROJ-1" "INFO" "<origin_dir> is <$origin_dir>."
-#return 501
-# Generate the wrapper
-set design_name [get_bd_designs]
-#make_wrapper -files [get_files $design_name.bd] -top -import
-make_wrapper -files [get_files $design_name.bd] -top
+## Create block design
+#source $origin_dir/block_design/hdmi_vga_block_design.tcl
+#common::send_msg_id "MOJE_PROJ-1" "INFO" "<origin_dir> is <$origin_dir>."
+##return 501
+## Generate the wrapper
+#set design_name [get_bd_designs]
+##make_wrapper -files [get_files $design_name.bd] -top -import
+#make_wrapper -files [get_files $design_name.bd] -top
 ############################################################
 
 # Set 'sources_1' fileset object
+## "[file normalize "$origin_dir/block_design/hdmi_vga_block_design/hdmi_vga_block_design.bd"]"\
+## "[file normalize "$origin_dir/block_design/hdmi_vga_block_design/hdl/hdmi_vga_block_design_wrapper.v"]"\
+## "[file normalize "$origin_dir/rtl/util/clog2_fun.v"]"\
+## "[file normalize "$origin_dir/util/clog2_fun.v"]"\
+##
 set obj [get_filesets sources_1]
 set files [list \
  "[file normalize "$origin_dir/rtl/delay.v"]"\
  "[file normalize "$origin_dir/rtl/sel_key_with_min_val.v"]"\
  "[file normalize "$origin_dir/rtl/delay_line.v"]"\
- "[file normalize "$origin_dir/util/clog2_fun.v"]"\
  "[file normalize "$origin_dir/rtl/argmin.v"]"\
  "[file normalize "$origin_dir/rtl/path_cost_calculator.v"]"\
  "[file normalize "$origin_dir/rtl/ram_inference.v"]"\
  "[file normalize "$origin_dir/rtl/ram_delay_line.v"]"\
- "[file normalize "$origin_dir/block_design/hdmi_vga_block_design/hdmi_vga_block_design.bd"]"\
  "[file normalize "$origin_dir/rtl/simple_sgm.v"]"\
  "[file normalize "$origin_dir/rtl/rgb2y.v"]"\
- "[file normalize "$origin_dir/block_design/hdmi_vga_block_design/hdl/hdmi_vga_block_design_wrapper.v"]"\
  "[file normalize "$origin_dir/rtl/half_img.v"]"\
  "[file normalize "$origin_dir/rtl/argmin_8.v"]"\
  "[file normalize "$origin_dir/rtl/img_coordinates_counter.v"]"\
+ "[file normalize "$origin_dir/rtl/sgm_vp.v"]"\
 ]
 add_files -norecurse -fileset $obj $files
 
-# Set 'sources_1' fileset file properties for remote files
-set file "$origin_dir/block_design/hdmi_vga_block_design/hdmi_vga_block_design.bd"
-set file [file normalize $file]
-set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
-if { ![get_property "is_locked" $file_obj] } {
-  set_property "synth_checkpoint_mode" "Hierarchical" $file_obj
-}
+## Set 'sources_1' fileset file properties for remote files
+#set file "$origin_dir/block_design/hdmi_vga_block_design/hdmi_vga_block_design.bd"
+#set file [file normalize $file]
+#set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
+#if { ![get_property "is_locked" $file_obj] } {
+#  set_property "synth_checkpoint_mode" "Hierarchical" $file_obj
+#}
 
 ############################################################
 ## Create block design
@@ -209,8 +209,10 @@ if { ![get_property "is_locked" $file_obj] } {
 
 # Set 'sources_1' fileset properties
 set obj [get_filesets sources_1]
+#set_property "include_dirs" "$origin_dir/util $origin_dir/util_2" $obj
 set_property "include_dirs" "$origin_dir/util" $obj
-set_property "top" "hdmi_vga_block_design_wrapper" $obj
+set_property "top" "sgm_vp" $obj
+#set_property "top" "hdmi_vga_block_design_wrapper" $obj
 
 # Set 'sources_1' fileset object
 set obj [get_filesets sources_1]
@@ -256,13 +258,14 @@ if {[string equal [get_filesets -quiet constrs_1] ""]} {
 # Set 'constrs_1' fileset object
 set obj [get_filesets constrs_1]
 
-# Add/Import constrs file and set constrs file properties
-set file "[file normalize "$origin_dir/constraints/Zybo_HDMI.xdc"]"
-set file_added [add_files -norecurse -fileset $obj $file]
-set file "$origin_dir/constraints/Zybo_HDMI.xdc"
-set file [file normalize $file]
-set file_obj [get_files -of_objects [get_filesets constrs_1] [list "*$file"]]
-set_property "file_type" "XDC" $file_obj
+# Empty (no sources present)
+## Add/Import constrs file and set constrs file properties
+#set file "[file normalize "$origin_dir/constraints/Zybo_HDMI.xdc"]"
+#set file_added [add_files -norecurse -fileset $obj $file]
+#set file "$origin_dir/constraints/Zybo_HDMI.xdc"
+#set file [file normalize $file]
+#set file_obj [get_files -of_objects [get_filesets constrs_1] [list "*$file"]]
+#set_property "file_type" "XDC" $file_obj
 
 # Set 'constrs_1' fileset properties
 set obj [get_filesets constrs_1]
@@ -314,8 +317,8 @@ if {[string equal [get_runs -quiet synth_1] ""]} {
   set_property flow "Vivado Synthesis 2016" [get_runs synth_1]
 }
 set obj [get_runs synth_1]
-set_property "needs_refresh" "1" $obj
 #set_property -name {steps.synth_design.args.more options} -value {-include_dirs "$origin_dir/util/"} -objects $obj
+set_property "needs_refresh" "1" $obj
 
 # set the current synth run
 current_run -synthesis [get_runs synth_1]
@@ -334,4 +337,4 @@ set_property "steps.write_bitstream.args.verbose" "0" $obj
 # set the current impl run
 current_run -implementation [get_runs impl_1]
 
-puts "INFO: Project created:working_dir_tor_wizyjny"
+puts "INFO: Project created:working_dir_sgm"

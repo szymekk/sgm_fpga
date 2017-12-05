@@ -223,6 +223,9 @@ CONFIG.kEdidFileName {dgl_720p_cea.data} \
   # Create instance: rgb2vga_0, and set properties
   set rgb2vga_0 [ create_bd_cell -type ip -vlnv digilentinc.com:ip:rgb2vga:1.0 rgb2vga_0 ]
 
+  # Create instance: sgm_vp_0, and set properties
+  set sgm_vp_0 [ create_bd_cell -type ip -vlnv xilinx.com:user:sgm_vp:1.0 sgm_vp_0 ]
+
   # Create instance: xlconstant_0, and set properties
   set xlconstant_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 xlconstant_0 ]
   set_property -dict [ list \
@@ -231,18 +234,32 @@ CONFIG.CONST_VAL {0} \
 
   # Create interface connections
   connect_bd_intf_net -intf_net dvi2rgb_0_DDC [get_bd_intf_ports hdmi_in_ddc] [get_bd_intf_pins dvi2rgb_0/DDC]
-  connect_bd_intf_net -intf_net dvi2rgb_0_RGB [get_bd_intf_pins dvi2rgb_0/RGB] [get_bd_intf_pins rgb2vga_0/vid_in]
+#  connect_bd_intf_net -intf_net dvi2rgb_0_RGB [get_bd_intf_pins dvi2rgb_0/RGB] [get_bd_intf_pins rgb2vga_0/vid_in]
   connect_bd_intf_net -intf_net hdmi_in_1 [get_bd_intf_ports hdmi_in] [get_bd_intf_pins dvi2rgb_0/TMDS]
 
   # Create port connections
   connect_bd_net -net clk_wiz_0_clk_out1 [get_bd_pins clk_wiz_0/clk_out1] [get_bd_pins dvi2rgb_0/RefClk]
-  connect_bd_net -net dvi2rgb_0_PixelClk [get_bd_pins dvi2rgb_0/PixelClk] [get_bd_pins rgb2vga_0/PixelClk]
+#  connect_bd_net -net dvi2rgb_0_PixelClk [get_bd_pins dvi2rgb_0/PixelClk] [get_bd_pins rgb2vga_0/PixelClk]
+  connect_bd_net -net dvi2rgb_0_PixelClk [get_bd_pins dvi2rgb_0/PixelClk] [get_bd_pins rgb2vga_0/PixelClk] [get_bd_pins sgm_vp_0/clk]
+#add{
+  connect_bd_net -net dvi2rgb_0_vid_pData [get_bd_pins dvi2rgb_0/vid_pData] [get_bd_pins sgm_vp_0/pixel_in]
+  connect_bd_net -net dvi2rgb_0_vid_pHSync [get_bd_pins dvi2rgb_0/vid_pHSync] [get_bd_pins sgm_vp_0/h_sync_in]
+  connect_bd_net -net dvi2rgb_0_vid_pVDE [get_bd_pins dvi2rgb_0/vid_pVDE] [get_bd_pins sgm_vp_0/de_in]
+  connect_bd_net -net dvi2rgb_0_vid_pVSync [get_bd_pins dvi2rgb_0/vid_pVSync] [get_bd_pins sgm_vp_0/v_sync_in]
+#}add
   connect_bd_net -net rgb2vga_0_vga_pBlue [get_bd_ports vga_pBlue] [get_bd_pins rgb2vga_0/vga_pBlue]
   connect_bd_net -net rgb2vga_0_vga_pGreen [get_bd_ports vga_pGreen] [get_bd_pins rgb2vga_0/vga_pGreen]
   connect_bd_net -net rgb2vga_0_vga_pHSync [get_bd_ports vga_pHSync] [get_bd_pins rgb2vga_0/vga_pHSync]
   connect_bd_net -net rgb2vga_0_vga_pRed [get_bd_ports vga_pRed] [get_bd_pins rgb2vga_0/vga_pRed]
   connect_bd_net -net rgb2vga_0_vga_pVSync [get_bd_ports vga_pVSync] [get_bd_pins rgb2vga_0/vga_pVSync]
-  connect_bd_net -net sw_1 [get_bd_ports led] [get_bd_ports sw]
+#add{
+  connect_bd_net -net sgm_vp_0_de_out [get_bd_pins rgb2vga_0/rgb_pVDE] [get_bd_pins sgm_vp_0/de_out]
+  connect_bd_net -net sgm_vp_0_h_sync_out [get_bd_pins rgb2vga_0/rgb_pHSync] [get_bd_pins sgm_vp_0/h_sync_out]
+  connect_bd_net -net sgm_vp_0_pixel_out [get_bd_pins rgb2vga_0/rgb_pData] [get_bd_pins sgm_vp_0/pixel_out]
+  connect_bd_net -net sgm_vp_0_v_sync_out [get_bd_pins rgb2vga_0/rgb_pVSync] [get_bd_pins sgm_vp_0/v_sync_out]
+#}add
+#  connect_bd_net -net sw_1 [get_bd_ports led] [get_bd_ports sw]
+  connect_bd_net -net sw_1 [get_bd_ports led] [get_bd_ports sw] [get_bd_pins sgm_vp_0/sw]
   connect_bd_net -net sys_clock_1 [get_bd_ports sys_clock] [get_bd_pins clk_wiz_0/clk_in1]
   connect_bd_net -net xlconstant_0_dout [get_bd_ports hdmi_hpd] [get_bd_pins dvi2rgb_0/aRst] [get_bd_pins xlconstant_0/dout]
 
@@ -265,6 +282,43 @@ preplace netloc clk_wiz_0_clk_out1 1 1 1 180J
 levelinfo -pg 1 0 100 300 530 650 -top 0 -bot 310
 ",
 }
+
+# mozna dodac to
+#  regenerate_bd_layout -layout_string {
+#   guistr: "# # String gsaved with Nlview 6.6.5b  2016-09-06 bk=1.3687 VDI=39 GEI=35 GUI=JA:1.6
+##  -string -flagsOSRD
+#preplace port vga_pVSync -pg 1 -y 260 -defaultsOSRD
+#preplace port vga_pHSync -pg 1 -y 240 -defaultsOSRD
+#preplace port sys_clock -pg 1 -y 120 -defaultsOSRD
+#preplace port hdmi_in -pg 1 -y 40 -defaultsOSRD
+#preplace port hdmi_in_ddc -pg 1 -y 60 -defaultsOSRD
+#preplace portBus sw -pg 1 -y 310 -defaultsOSRD
+#preplace portBus hdmi_hpd -pg 1 -y 130 -defaultsOSRD
+#preplace portBus vga_pGreen -pg 1 -y 200 -defaultsOSRD
+#preplace portBus vga_pRed -pg 1 -y 180 -defaultsOSRD
+#preplace portBus led -pg 1 -y 310 -defaultsOSRD
+#preplace portBus vga_pBlue -pg 1 -y 220 -defaultsOSRD
+#preplace inst xlconstant_0 -pg 1 -lvl 1 -y 200 -defaultsOSRD
+#preplace inst vp_0 -pg 1 -lvl 3 -y 20 -defaultsOSRD
+#preplace inst clk_wiz_0 -pg 1 -lvl 1 -y 110 -defaultsOSRD
+#preplace inst dvi2rgb_0 -pg 1 -lvl 2 -y 130 -defaultsOSRD
+#preplace inst rgb2vga_0 -pg 1 -lvl 4 -y 220 -defaultsOSRD
+#preplace netloc rgb2vga_0_vga_pRed 1 4 1 NJ
+#preplace netloc rgb2vga_0_vga_pGreen 1 4 1 NJ
+#preplace netloc sys_clock_1 1 0 1 NJ
+#preplace netloc hdmi_in_1 1 0 2 NJ 40 190J
+#preplace netloc dvi2rgb_0_DDC 1 2 3 N 120 NJ 120 900J
+#preplace netloc xlconstant_0_dout 1 1 4 190J 210 420J 130 NJ 130 N
+#preplace netloc rgb2vga_0_vga_pVSync 1 4 1 NJ
+#preplace netloc rgb2vga_0_vga_pHSync 1 4 1 NJ
+#preplace netloc clk_wiz_0_clk_out1 1 1 1 180
+#preplace netloc sw_1 1 0 5 NJ 310 NJ 310 NJ 310 NJ 310 NJ
+#preplace netloc dvi2rgb_0_RGB 1 2 2 430 210 N
+#preplace netloc rgb2vga_0_vga_pBlue 1 4 1 NJ
+#preplace netloc dvi2rgb_0_PixelClk 1 2 2 N 140 670
+#levelinfo -pg 1 -120 100 320 550 790 920 -top -170 -bot 400
+#",
+#}
 
   # Restore current instance
   current_bd_instance $oldCurInst
