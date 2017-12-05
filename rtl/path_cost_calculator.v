@@ -11,6 +11,7 @@ module path_cost_calculator
 (
     //inputs
     //input in_de, //todo
+    input in_de, //todo
     input in_path_beginning,
     input in_clk,
     input [7:0] in_P1,//todo size
@@ -68,50 +69,91 @@ end
 endgenerate
 //---------------------------------------------------------------------
 //---------------------------------------------------------------------
-
-delay_line #(
-    .N(ACC_COST_BITS*DISPARITY_LEVELS),
-    .DELAY(PATH_DELAY - 1) // register delay by one already
-) path_costs_delayer (
-    //inputs
-    .clk(in_clk),
-    .ce(1'b1), // todo skip invalid image (blanking etc) and lower DELAY
-    .idata(packed_path_costs),
-    //outputs
-    .odata(packed_prev_path_costs)
-);
-
-//---------------------------------------------------------------------
-/*
-reg [ACC_COST_BITS*DISPARITY_LEVELS-1:0] memory [1:PATH_DELAY];
-always @(posedge in_clk)
-begin : path_costs_delayer
-    integer i;
-    //byte shift register
-    memory[1] <= packed_path_costs;
-    for(i=1; i<PATH_DELAY; i=i+1) begin
-        memory[i+1] <= memory[i];
-    end
+generate
+if (PATH_DELAY == 1) begin : choose_delay_line
+    delay_line #(
+        .N(ACC_COST_BITS*DISPARITY_LEVELS),
+        .DELAY(PATH_DELAY - 1) // register delay by one already
+    ) path_costs_delayer (
+        //inputs
+        .clk(in_clk),
+        .ce(1'b1), // todo skip invalid image (blanking etc) and lower DELAY
+        .idata(packed_path_costs),
+        //outputs
+        .odata(packed_prev_path_costs)
+    );
 end
-assign packed_prev_path_costs = memory[PATH_DELAY];
-*/
-//---------------------------------------------------------------------
-/*
-ram_delay_line
-#(
-    //.DATA_WIDTH(ACC_COST_BITS*DISPARITY_LEVELS),
-    .DATA_WIDTH(64),
-    .DELAY(PATH_DELAY - 1)
-) path_costs_delayer (
-    .clk(in_clk),
-    .ce(1'b1),
-    .rst(1'b0),
-    .data_in(packed_path_costs),
-    //outputs
-    .data_out(packed_prev_path_costs)
-);
-*/
-//---------------------------------------------------------------------
+else // ram delay line
+begin
+
+    //---------------------------------------------------------------------
+    /*
+    ram_delay_line
+    #(
+        //.DATA_WIDTH(ACC_COST_BITS*DISPARITY_LEVELS),
+        .DATA_WIDTH(64),
+        .DELAY(PATH_DELAY - 1)
+    //) path_costs_delayer (
+    ) path_costs_delayer [1:9] (//9 bit acc_disp
+        .clk(in_clk),
+        .ce(1'b1),
+        .rst(1'b0),
+        .data_in(packed_path_costs),
+        //outputs
+        .data_out(packed_prev_path_costs)
+    );
+    */
+    /*
+    ram_delay_line // WORKING
+    #(
+        //.DATA_WIDTH(ACC_COST_BITS*DISPARITY_LEVELS),
+    //    .DATA_WIDTH(64),
+        .DATA_WIDTH(32),
+        .DELAY(PATH_DELAY - 1) // IMG_WIDTH - ram depth, not delay
+    //) path_costs_delayer [1:9] (//9 bit acc_disp
+    ) path_costs_delayer [1:2*9] (//9 bit acc_disp
+        .clk(in_clk),
+        .ce(in_de),
+        .rst(1'b0),
+        .data_in(packed_path_costs),
+        //outputs
+        .data_out(packed_prev_path_costs)
+    );
+    */
+    /*
+    ram_delay_line // WORKING
+    #(
+        //.DATA_WIDTH(ACC_COST_BITS*DISPARITY_LEVELS),
+        .DATA_WIDTH(18),
+        .DELAY(PATH_DELAY - 1) // IMG_WIDTH - ram depth, not delay
+    ) path_costs_delayer [1:32] (//test infer 18 bits x 720 depth ???
+        .clk(in_clk),
+        .ce(in_de),
+        .rst(1'b0),
+    //    .data_in({ {24{1'b0}}, packed_path_costs }),//32 inst x 18 DATA_WIDTH = 576 total width packed_path_costs is 576 bits wide so no extend
+        .data_in(packed_path_costs),//32 inst x 18 DATA_WIDTH = 576 total width packed_path_costs is 576 bits wide so no extend
+        //outputs
+        .data_out(packed_prev_path_costs)
+    );
+    */
+    ram_delay_line // WORKING
+    #(
+        //.DATA_WIDTH(ACC_COST_BITS*DISPARITY_LEVELS),
+        .DATA_WIDTH(18),
+        .DELAY(PATH_DELAY - 1) // IMG_WIDTH - ram depth, not delay
+    ) path_costs_delayer [1:32] (//test infer 18 bits x 720 depth ???
+        .clk(in_clk),
+        .ce(in_de),
+        .rst(1'b0),
+    //    .data_in({ {24{1'b0}}, packed_path_costs }),//32 inst x 18 DATA_WIDTH = 576 total width packed_path_costs is 576 bits wide so no extend
+        .data_in(packed_path_costs),//32 inst x 18 DATA_WIDTH = 576 total width packed_path_costs is 576 bits wide so no extend
+        //outputs
+        .data_out(packed_prev_path_costs)
+    );
+    //---------------------------------------------------------------------
+end
+endgenerate
+
 //---------------------------------------------------------------------
 
 wire [ACC_COST_BITS-1:0] prev_path_costs [0:MAX_DISP]; // array of delayed path costs for each candidate disparity
