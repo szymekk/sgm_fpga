@@ -11,7 +11,7 @@ begin
     end
 end
 
-`include "../util/clog2_fun.v"
+`include "clog2_fun.v"
 localparam EL_WIDTH = 7;//max 127
 localparam WORDS = 8; // number of compared words
 localparam IDX_WIDTH = clog2(WORDS);

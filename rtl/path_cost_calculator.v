@@ -144,7 +144,7 @@ endgenerate
 */
 
 // todo - use module without min_index
-`include "../util/clog2_fun.v"
+`include "clog2_fun.v"
 localparam DUMMY_INDEX_BITS = clog2(DISPARITY_LEVELS);
 wire [DUMMY_INDEX_BITS-1:0] unused_wire_index;
 argmin #(

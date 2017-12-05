@@ -9,7 +9,7 @@ module ram_inference
     di,
     do
 );
-    `include "../util/clog2_fun.v"
+    `include "clog2_fun.v"
     parameter DATA_WIDTH = 4;
     parameter RAM_DEPTH = 5;
 //    parameter DATA_WIDTH = 256;

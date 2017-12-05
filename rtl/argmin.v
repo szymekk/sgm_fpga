@@ -8,7 +8,7 @@ module argmin
     min_value, // minimal word
     min_index // index of minimal word
 );
-`include "../util/clog2_fun.v"
+`include "clog2_fun.v"
 parameter WIDTH = 2; // width of compared words
 parameter INPUTS = 8;
 localparam INPUT_ARR_WIDTH = INPUTS*WIDTH;

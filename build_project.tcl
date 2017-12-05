@@ -206,6 +206,7 @@ if { ![get_property "is_locked" $file_obj] } {
 
 # Set 'sources_1' fileset properties
 set obj [get_filesets sources_1]
+set_property "include_dirs" "$origin_dir/util" $obj
 set_property "top" "hdmi_vga_block_design_wrapper" $obj
 
 # Set 'sources_1' fileset object
@@ -295,6 +296,7 @@ add_files -norecurse -fileset $obj $files
 
 # Set 'sim_1' fileset properties
 set obj [get_filesets sim_1]
+set_property "include_dirs" "$origin_dir/util" $obj
 set_property "top" "tb_ram_delay_line_2" $obj
 set_property "transport_int_delay" "0" $obj
 set_property "transport_path_delay" "0" $obj
@@ -310,6 +312,7 @@ if {[string equal [get_runs -quiet synth_1] ""]} {
 }
 set obj [get_runs synth_1]
 set_property "needs_refresh" "1" $obj
+#set_property -name {steps.synth_design.args.more options} -value {-include_dirs "$origin_dir/util/"} -objects $obj
 
 # set the current synth run
 current_run -synthesis [get_runs synth_1]

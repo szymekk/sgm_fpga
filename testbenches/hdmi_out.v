@@ -32,7 +32,8 @@ wire[3*8:0] str2 = "xyz";
 localparam hr = 800;
 localparam vr = 300;
 realtime time_capture = 0.0;
-`include "../util/write_int_b10_to_file_task.v"
+
+`include "write_int_b10_to_file_task.v"
 always @(posedge hdmi_clk)
 begin
     hdmi_vs_i_del <= w_hdmi_vs_i;

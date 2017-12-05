@@ -61,7 +61,7 @@ module argmin_8
     min_value,
     min_index
 );
-`include "../util/clog2_fun.v"
+`include "clog2_fun.v"
 
 parameter WIDTH = 2;
 localparam INPUTS = 8;

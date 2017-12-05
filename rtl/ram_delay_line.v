@@ -11,7 +11,7 @@ module ram_delay_line
     //outputs
     output [DATA_WIDTH-1:0] data_out
 );
-`include "../util/clog2_fun.v"
+`include "clog2_fun.v"
 localparam RAM_DEPTH = DELAY - 1;
 localparam ADDRESS_BITS = clog2(RAM_DEPTH);
 

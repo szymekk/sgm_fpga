@@ -1,5 +1,5 @@
-`ifndef _clog2_fun_v_
-`define _clog2_fun_v_
+//`ifndef _clog2_fun_v_
+//`define _clog2_fun_v_
 
 function integer clog2;
     input integer value;
@@ -10,4 +10,4 @@ function integer clog2;
     end 
 endfunction
 
-`endif // _clog2_fun_v_
+//`endif // _clog2_fun_v_

@@ -108,7 +108,7 @@ path_cost_calculator #(
 // path_cost_calculator #(.PATH_DELAY(1664)) top_to_bottom ()
 // path_cost_calculator #(.PATH_DELAY(1663)) diagonal_right_to_left ()
 
-`include "../util/clog2_fun.v"
+`include "clog2_fun.v"
 localparam INDEX_BITS = clog2(DISPARITY_RANGE);
 wire [INDEX_BITS-1:0]index;//5 bit for 32 disparities, 6 bit for 64
 wire [ACC_COST_BITS-1:0]min_val;//8 bit

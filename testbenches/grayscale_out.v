@@ -22,7 +22,7 @@ reg hdmi_vs_i_del = 1;
 integer pixels_written_to_file = 0;
 
 realtime time_capture = 0.0;
-`include "../util/write_int_b10_to_file_task.v"
+`include "write_int_b10_to_file_task.v"
 always @(posedge hdmi_clk)
 begin
     hdmi_vs_i_del <= w_hdmi_vs_i;
