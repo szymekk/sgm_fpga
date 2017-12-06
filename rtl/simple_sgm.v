@@ -1,10 +1,10 @@
 module simple_sgm
 # (
-    // 83 dla 64x64
-    // 1664 dla 1280x720
 //    localparam HALF_IMG_WIDTH = 400,
     localparam HALF_IMG_WIDTH = 640, // 1280/2
-    localparam DISPARITY_RANGE = 64
+    localparam DISPARITY_RANGE = 128
+//    localparam DISPARITY_RANGE = 64
+//    localparam DISPARITY_RANGE = 32
 )
 (
     //inputs
@@ -86,7 +86,6 @@ wire horizontal_beginning = (0 + HALF_IMG_WIDTH == col);
 
 localparam ACC_COST_BITS = COST_BITS + 1;//todo
 localparam PATH_COST_ARR_WIDTH = ACC_COST_BITS*DISPARITY_RANGE;
-wire [PATH_COST_ARR_WIDTH-1:0] L_array;
 
 wire [PATH_COST_ARR_WIDTH-1:0] L_array_horizontal;
 path_cost_calculator #(
@@ -182,7 +181,8 @@ path_cost_calculator #(// WORKING
 // path_cost_calculator #(.PATH_DELAY(1664)) top_to_bottom ()
 // path_cost_calculator #(.PATH_DELAY(1663)) diagonal_right_to_left ()
 
-localparam TOTAL_COST_BITS = ACC_COST_BITS + 1;//todo + 2
+localparam TOTAL_COST_BITS = ACC_COST_BITS + 1;
+//localparam TOTAL_COST_BITS = ACC_COST_BITS + 2; // 3-4 paths
 localparam TOTAL_COST_ARR_WIDTH = TOTAL_COST_BITS*DISPARITY_RANGE;
 wire [TOTAL_COST_ARR_WIDTH-1:0] S_array_total;
 generate
@@ -196,18 +196,6 @@ endgenerate
 `include "clog2_fun.v"
 localparam INDEX_BITS = clog2(DISPARITY_RANGE);
 wire [INDEX_BITS-1:0]index;//5 bit for 32 disparities, 6 bit for 64
-//wire [ACC_COST_BITS-1:0]min_val;//9 bit
-//argmin #(
-//    .WIDTH(ACC_COST_BITS),
-//    .INPUTS(DISPARITY_RANGE)
-//) disparity_selector (
-//    //inputs
-//    .input_words(L_array), // packed array of words to be compared
-//    //outputs
-//    .min_value(min_val),
-//    .min_index(index)
-//);
-
 wire [TOTAL_COST_BITS-1:0]min_val;//10 bit
 argmin #(
     .WIDTH(TOTAL_COST_BITS),
@@ -228,8 +216,6 @@ always @(posedge clk) begin : control_signals_delay
 end
 assign {clk_out, de_out, h_sync_out, v_sync_out} = {clk, reg_de, reg_h_sync, reg_v_sync};
 assign pixel_disparity = index;
-//assign pixel_disparity = right_arr[5];//TODO CHANGE
-//assign pixel_disparity = right_arr[0];//TODO CHANGE
 
 
 endmodule

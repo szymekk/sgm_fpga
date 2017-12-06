@@ -291,6 +291,7 @@ set files [list \
  "[file normalize "$origin_dir/testbenches/tb_argmin.v"]"\
  "[file normalize "$origin_dir/testbenches/tb_hdmi.v"]"\
  "[file normalize "$origin_dir/testbenches/tb_test.v"]"\
+ "[file normalize "$origin_dir/testbenches/tb_div_round_up_fun.v"]"\
 ]
 add_files -norecurse -fileset $obj $files
 

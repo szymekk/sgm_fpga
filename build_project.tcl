@@ -172,6 +172,7 @@ set files [list \
  "[file normalize "$origin_dir/rtl/sel_key_with_min_val.v"]"\
  "[file normalize "$origin_dir/rtl/delay_line.v"]"\
  "[file normalize "$origin_dir/util/clog2_fun.v"]"\
+ "[file normalize "$origin_dir/util/div_round_up_fun.v"]"\
  "[file normalize "$origin_dir/rtl/argmin.v"]"\
  "[file normalize "$origin_dir/rtl/path_cost_calculator.v"]"\
  "[file normalize "$origin_dir/rtl/ram_inference.v"]"\
@@ -288,6 +289,7 @@ set files [list \
  "[file normalize "$origin_dir/testbenches/tb_argmin.v"]"\
  "[file normalize "$origin_dir/testbenches/tb_hdmi.v"]"\
  "[file normalize "$origin_dir/testbenches/tb_test.v"]"\
+ "[file normalize "$origin_dir/testbenches/tb_div_round_up_fun.v"]"\
 ]
 add_files -norecurse -fileset $obj $files
 
