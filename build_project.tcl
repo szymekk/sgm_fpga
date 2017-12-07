@@ -165,6 +165,8 @@ set design_name [get_bd_designs]
 make_wrapper -files [get_files $design_name.bd] -top
 ############################################################
 
+# "[file normalize "$origin_dir/block_design/hdmi_vga_block_design/hdmi_vga_block_design.bd"]"\
+#
 # Set 'sources_1' fileset object
 set obj [get_filesets sources_1]
 set files [list \
@@ -177,7 +179,6 @@ set files [list \
  "[file normalize "$origin_dir/rtl/path_cost_calculator.v"]"\
  "[file normalize "$origin_dir/rtl/ram_inference.v"]"\
  "[file normalize "$origin_dir/rtl/ram_delay_line.v"]"\
- "[file normalize "$origin_dir/block_design/hdmi_vga_block_design/hdmi_vga_block_design.bd"]"\
  "[file normalize "$origin_dir/rtl/simple_sgm.v"]"\
  "[file normalize "$origin_dir/rtl/rgb2y.v"]"\
  "[file normalize "$origin_dir/block_design/hdmi_vga_block_design/hdl/hdmi_vga_block_design_wrapper.v"]"\
