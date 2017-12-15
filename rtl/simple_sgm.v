@@ -1,5 +1,8 @@
 module simple_sgm
 # (
+    localparam USE_RANK_TRANSFORM_COST = 1,
+//    localparam TOTAL_LINE_WIDTH = (800 + 8 + 8 + 2), // simulation 800
+    localparam TOTAL_LINE_WIDTH = 1650, // synthesis 1280
 //    localparam HALF_IMG_WIDTH = 400,
     localparam HALF_IMG_WIDTH = 640, // 1280/2
 //    localparam DISPARITY_RANGE = 128
@@ -23,41 +26,119 @@ module simple_sgm
 );
 localparam MAX_DISP = DISPARITY_RANGE - 1;
 
-reg [7:0] byte_shift_reg[0:MAX_DISP-1];
-always @(posedge clk)
-begin : right_img_delay
-    integer i;
-    //byte shift register
-    byte_shift_reg[0] <= pixel_right;
-    for(i=0; i<MAX_DISP-1; i=i+1) begin
-        byte_shift_reg[i+1] <= byte_shift_reg[i];
-    end
-end
-wire [7:0] right_arr [0:MAX_DISP];
-assign right_arr[0] = pixel_right;
-genvar i;
-generate
-for (i=0; i<MAX_DISP; i=i+1) begin : assign_delay
-    assign right_arr[i+1] = byte_shift_reg[i];
-end
-endgenerate
+wire cost_de;
+wire cost_h_sync;
+wire cost_v_sync;
 
 //localparam COST_BITS = 8;
 localparam COST_BITS = 6;
 //absolute difference calculation
 localparam [COST_BITS-1:0] THRESHOLD = {COST_BITS{1'b1}};
 //localparam MAX_COST = 255;
-localparam MAX_COST = THRESHOLD;
-localparam test = {COST_BITS{1'b1}};
-wire [7:0] pixelwise_abs_diff [0:MAX_DISP];
+localparam MAX_COST = THRESHOLD; // todo for rank transform
+
 wire [COST_BITS-1:0] matching_cost [0:MAX_DISP];
 generate
-for (i=0; i<=MAX_DISP; i=i+1) begin : calculate_abs_diff
-    assign pixelwise_abs_diff[i] = (pixel_left > right_arr[i]) ? (pixel_left - right_arr[i]) : (right_arr[i] - pixel_left);
-//    assign matching_cost[i] = pixelwise_abs_diff[i];
-    // truncated matching cost
-    assign matching_cost[i] = (pixelwise_abs_diff[i] > THRESHOLD) ? THRESHOLD : pixelwise_abs_diff[i];
-end
+if (USE_RANK_TRANSFORM_COST) begin
+    wire [COST_BITS-1:0] rank_transform_left;
+    wire [COST_BITS-1:0] rank_transform_right;
+    wire left_rank_de;
+    wire left_rank_h_sync;
+    wire left_rank_v_sync;
+
+    assign {cost_de, cost_h_sync, cost_v_sync} = {left_rank_de, left_rank_h_sync, left_rank_v_sync};
+    rank_transform
+    # (
+//            localparam WINDOW_SIZE = 7,
+        .OUTPUT_WIDTH(COST_BITS),
+        .TOTAL_LINE_W(TOTAL_LINE_WIDTH)
+    ) rank_transform_calculator_left (
+        //inputs
+        .clk(clk),
+        .de_in(de_in),
+        .h_sync_in(h_sync_in),
+        .v_sync_in(v_sync_in),
+        .pixel_in(pixel_left),//8 bit
+        //outputs
+        .clk_out(),
+        .de_out(left_rank_de),
+        .h_sync_out(left_rank_h_sync),
+        .v_sync_out(left_rank_v_sync),
+        .rank_transform_out(rank_transform_left) // 8
+    );
+    rank_transform
+    # (
+//            localparam WINDOW_SIZE = 7,
+        .OUTPUT_WIDTH(COST_BITS),
+        .TOTAL_LINE_W(TOTAL_LINE_WIDTH)
+    ) rank_transform_calculator_right (
+        //inputs
+        .clk(clk),
+        .de_in(de_in),
+        .h_sync_in(h_sync_in),
+        .v_sync_in(v_sync_in),
+        .pixel_in(pixel_right),//8 bit
+        //outputs
+        .clk_out(),
+        .de_out(),
+        .h_sync_out(),
+        .v_sync_out(),
+        .rank_transform_out(rank_transform_right) // 8
+    );
+
+    reg [COST_BITS-1:0] byte_shift_reg[0:MAX_DISP-1];
+    always @(posedge clk) begin : right_rank_transform_delay
+        integer i;
+        //byte shift register
+        byte_shift_reg[0] <= rank_transform_right;
+        for(i=0; i<MAX_DISP-1; i=i+1) begin
+            byte_shift_reg[i+1] <= byte_shift_reg[i];
+        end
+    end
+    wire [COST_BITS-1:0] right_arr [0:MAX_DISP];
+    assign right_arr[0] = rank_transform_right;
+    genvar i;
+    //generate
+    for (i=0; i<MAX_DISP; i=i+1) begin : assign_delay
+        assign right_arr[i+1] = byte_shift_reg[i];
+    end
+    //endgenerate
+    wire [COST_BITS-1:0] rank_transform_abs_diff [0:MAX_DISP];
+    for (i=0; i<=MAX_DISP; i=i+1) begin : calculate_abs_diff
+        assign rank_transform_abs_diff[i] = (rank_transform_left > right_arr[i]) ? (rank_transform_left - right_arr[i]) : (right_arr[i] - rank_transform_left);
+        assign matching_cost[i] = rank_transform_abs_diff[i];
+    end
+
+end // if
+else begin
+    wire [7:0] pixelwise_abs_diff [0:MAX_DISP];
+    //no delay introduced
+    assign {cost_de, cost_h_sync, cost_v_sync} = {de_in, h_sync_in, v_sync_in};
+    reg [7:0] byte_shift_reg[0:MAX_DISP-1];
+    always @(posedge clk) begin : right_img_delay
+        integer i;
+        //byte shift register
+        byte_shift_reg[0] <= pixel_right;
+        for(i=0; i<MAX_DISP-1; i=i+1) begin
+            byte_shift_reg[i+1] <= byte_shift_reg[i];
+        end
+    end
+    wire [7:0] right_arr [0:MAX_DISP];
+    assign right_arr[0] = pixel_right;
+    genvar i;
+    //generate
+    for (i=0; i<MAX_DISP; i=i+1) begin : assign_delay
+        assign right_arr[i+1] = byte_shift_reg[i];
+    end
+    //endgenerate
+
+    for (i=0; i<=MAX_DISP; i=i+1) begin : calculate_abs_diff
+        assign pixelwise_abs_diff[i] = (pixel_left > right_arr[i]) ? (pixel_left - right_arr[i]) : (right_arr[i] - pixel_left);
+    //    assign matching_cost[i] = pixelwise_abs_diff[i];
+        // truncated matching cost
+        assign matching_cost[i] = (pixelwise_abs_diff[i] > THRESHOLD) ? THRESHOLD : pixelwise_abs_diff[i];
+    end
+end // else
 endgenerate
 
 localparam ARR_WIDTH = COST_BITS*DISPARITY_RANGE;
@@ -77,7 +158,7 @@ img_coordinates_counter #(
 ) coordinates_counter (
     //inputs
     .clk(clk),
-    .de_in(de_in),
+    .de_in(cost_de),
     .h_sync_in(h_sync_in),
     .v_sync_in(v_sync_in),
     //outputs
@@ -85,7 +166,7 @@ img_coordinates_counter #(
     .col_out(col)
 );
 
-wire half_img_de = de_in && (col >= HALF_IMG_WIDTH);
+wire half_img_de = cost_de && (col >= HALF_IMG_WIDTH);
 
 wire horizontal_beginning = (0 + HALF_IMG_WIDTH == col);
 
@@ -223,8 +304,8 @@ argmin #(
 reg reg_de = 0;
 reg reg_h_sync = 0;
 reg reg_v_sync = 0;
-always @(posedge clk) begin : control_signals_delay
-    {reg_de, reg_h_sync, reg_v_sync} <= {de_in, h_sync_in, v_sync_in};
+always @(posedge clk) begin : control_signals_delay // cost aggregation introduces a one cycle delay
+    {reg_de, reg_h_sync, reg_v_sync} <= {cost_de, cost_h_sync, cost_v_sync};
 end
 assign {clk_out, de_out, h_sync_out, v_sync_out} = {clk, reg_de, reg_h_sync, reg_v_sync};
 assign pixel_disparity = index;
