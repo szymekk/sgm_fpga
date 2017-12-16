@@ -1,5 +1,5 @@
-`ifndef _div_round_up_fun_v_
-`define _div_round_up_fun_v_
+//`ifndef _div_round_up_fun_v_
+//`define _div_round_up_fun_v_
 
 function integer div_round_up;
     input integer dividend;
@@ -14,4 +14,4 @@ function integer div_round_up;
     end
 endfunction
 
-`endif // _div_round_up_fun_v_
+//`endif // _div_round_up_fun_v_
