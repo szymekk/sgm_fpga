@@ -183,6 +183,7 @@ set files [list \
  "[file normalize "$origin_dir/rtl/argmin_8.v"]"\
  "[file normalize "$origin_dir/rtl/img_coordinates_counter.v"]"\
  "[file normalize "$origin_dir/rtl/rank_transform.v"]"\
+ "[file normalize "$origin_dir/rtl/census_transform.v"]"\
  "[file normalize "$origin_dir/rtl/sgm_vp.v"]"\
 ]
 add_files -norecurse -fileset $obj $files
@@ -294,6 +295,7 @@ set files [list \
  "[file normalize "$origin_dir/testbenches/tb_test.v"]"\
  "[file normalize "$origin_dir/testbenches/tb_div_round_up_fun.v"]"\
  "[file normalize "$origin_dir/testbenches/tb_rank_transform.v"]"\
+ "[file normalize "$origin_dir/testbenches/tb_census_transform.v"]"\
 ]
 add_files -norecurse -fileset $obj $files
 

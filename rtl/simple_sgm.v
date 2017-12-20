@@ -1,6 +1,7 @@
 module simple_sgm
 # (
-    localparam USE_RANK_TRANSFORM_COST = 1,
+    localparam USE_CENSUS_TRANSFORM_COST = 1,
+    localparam USE_RANK_TRANSFORM_COST = 0,
 //    localparam TOTAL_LINE_WIDTH = (800 + 8 + 8 + 2), // simulation 800
     localparam TOTAL_LINE_WIDTH = 1650, // synthesis 1280
 //    localparam HALF_IMG_WIDTH = 400,
@@ -39,7 +40,118 @@ localparam MAX_COST = THRESHOLD; // todo for rank transform
 
 wire [COST_BITS-1:0] matching_cost [0:MAX_DISP];
 generate
-if (USE_RANK_TRANSFORM_COST) begin
+if (USE_CENSUS_TRANSFORM_COST) begin
+
+    localparam CENSUS_BITS = 49;
+    wire [CENSUS_BITS-1:0] census_transform_left;
+    wire [CENSUS_BITS-1:0] census_transform_right;
+//    wire [COST_BITS-1:0] rank_transform_left;
+//    wire [COST_BITS-1:0] rank_transform_right;
+    wire left_census_de;
+    wire left_census_h_sync;
+    wire left_census_v_sync;
+
+    assign {cost_de, cost_h_sync, cost_v_sync} = {left_census_de, left_census_h_sync, left_census_v_sync};
+    census_transform
+    # (
+//            localparam WINDOW_SIZE = 7,
+//        .OUTPUT_WIDTH(COST_BITS), // 49
+        .TOTAL_LINE_W(TOTAL_LINE_WIDTH)
+    ) census_transform_calculator_left (
+        //inputs
+        .clk(clk),
+        .de_in(de_in),
+        .h_sync_in(h_sync_in),
+        .v_sync_in(v_sync_in),
+        .pixel_in(pixel_left),//8 bit
+        //outputs
+        .clk_out(),
+        .de_out(left_census_de),
+        .h_sync_out(left_census_h_sync),
+        .v_sync_out(left_census_v_sync),
+        .census_transform_out(census_transform_left) // 49
+    );
+    census_transform
+    # (
+//            localparam WINDOW_SIZE = 7,
+//        .OUTPUT_WIDTH(COST_BITS), // 49
+        .TOTAL_LINE_W(TOTAL_LINE_WIDTH)
+    ) census_transform_calculator_right (
+        //inputs
+        .clk(clk),
+        .de_in(de_in),
+        .h_sync_in(h_sync_in),
+        .v_sync_in(v_sync_in),
+        .pixel_in(pixel_right),//8 bit
+        //outputs
+        .clk_out(),
+        .de_out(),
+        .h_sync_out(),
+        .v_sync_out(),
+        .census_transform_out(census_transform_right) // 49
+    );
+
+    reg [CENSUS_BITS-1:0] byte_shift_reg[0:MAX_DISP-1];
+    always @(posedge clk) begin : right_census_transform_delay
+        integer i;
+        //byte shift register
+        byte_shift_reg[0] <= census_transform_right;
+        for(i=0; i<MAX_DISP-1; i=i+1) begin
+            byte_shift_reg[i+1] <= byte_shift_reg[i];
+        end
+    end
+    wire [CENSUS_BITS-1:0] right_arr [0:MAX_DISP];
+    assign right_arr[0] = census_transform_right;
+    genvar i;
+    //generate
+    for (i=0; i<MAX_DISP; i=i+1) begin : assign_delay
+        assign right_arr[i+1] = byte_shift_reg[i];
+    end
+    //endgenerate
+    //--------------------beg_assert----------------
+    localparam MAX_CENSUS_TRANSFORM_VALUE = 7*7; // could be one less
+    //`include "clog2_fun.v"
+    localparam MIN_CENSUS_COST_WIDTH = clog2(MAX_CENSUS_TRANSFORM_VALUE);
+    /* output should be wide enough for the calculated value */
+    if (COST_BITS < MIN_CENSUS_COST_WIDTH ) begin : assertion_census_transform_fits_into_cost_bits
+        COST_BITS_is_to_small non_existing_module();
+    end
+    //--------------------end_assert----------------
+
+    wire [CENSUS_BITS-1:0] census_xor [0:MAX_DISP];
+    wire [COST_BITS-1:0] census_transform_hamming_distance [0:MAX_DISP];
+    for (i=0; i<=MAX_DISP; i=i+1) begin : calculate_hamming_distance
+        assign census_xor[i] = census_transform_left ^ right_arr[i];
+        reg [COST_BITS-1:0] count_ones = {COST_BITS{1'b0}};
+//        integer count_ones = 0;
+        integer idx;
+        always @* begin
+            count_ones = {COST_BITS{1'b0}};
+            for( idx = 0; idx<CENSUS_BITS; idx = idx + 1) begin
+                count_ones = count_ones + census_xor[i][idx];
+            end
+        end
+        assign census_transform_hamming_distance[i] = count_ones;
+        assign matching_cost[i] = census_transform_hamming_distance[i];
+    end
+//    wire [CENSUS_BITS-1:0] census_xor [0:MAX_DISP];
+//    wire [COST_BITS-1:0] census_transform_hamming_distance [0:MAX_DISP];
+//    reg [COST_BITS-1:0] count_ones [0:MAX_DISP];
+//    for (i=0; i<=MAX_DISP; i=i+1) begin : calculate_hamming_distance
+//        assign census_xor[i] = census_transform_left ^ right_arr[i];
+//        integer idx;
+//        always @* begin
+//            count_ones[i] = {COST_BITS{1'b0}};
+//            for( idx = 0; idx<CENSUS_BITS; idx = idx + 1) begin
+//                count_ones[i] = count_ones[i] + census_xor[idx];
+//            end
+//        end
+//        assign census_transform_hamming_distance[i] = count_ones[i];
+//        assign matching_cost[i] = census_transform_hamming_distance[i];
+//    end
+
+end
+else if (USE_RANK_TRANSFORM_COST) begin
     wire [COST_BITS-1:0] rank_transform_left;
     wire [COST_BITS-1:0] rank_transform_right;
     wire left_rank_de;
